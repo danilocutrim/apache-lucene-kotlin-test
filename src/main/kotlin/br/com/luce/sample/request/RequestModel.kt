@@ -6,8 +6,8 @@ import org.springframework.util.MultiValueMap
 
 data class RequestModel(
     val path: String,
-    val body: JsonNode? = null,
-    val headers: HttpHeaders,
+    val requestBody: JsonNode? = null,
+    val requestHeaders: HttpHeaders,
     val queryParams: MultiValueMap<String, String>? = null,
     val method: String,
 )

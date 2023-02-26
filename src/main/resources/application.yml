@@ -1,5 +1,6 @@
-twitter:
-  host: https://api.twitter.com
-  api:
-    token: AAAAAAAAAAAAAAAAAAAAALqFUQEAAAAANeXpeCduwrygAqzi7Zumbm1azcY%3DHwRLRaMti1wv7XZKbr0OKMAusiaWMf5QMJinZxH8wsbJmmy7hw
+lucene:
+  index:
+    directory: /home/danilo/Workspace/apache-lucene-kotlin-test/lucene_index/
 
+file:
+  directory: /home/danilo/Workspace/apache-lucene-kotlin-test/sample_files/
