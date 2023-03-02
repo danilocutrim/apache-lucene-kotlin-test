@@ -1,10 +1,9 @@
 package br.com.luce.sample.controller
 
 import br.com.luce.sample.lucene.LuceneSearch
-import br.com.luce.sample.request.ResponseModel
+import br.com.luce.sample.model.ResponseModel
 import br.com.luce.sample.service.StorageFileService
 import com.fasterxml.jackson.databind.JsonNode
-import org.apache.lucene.search.ScoreDoc
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController

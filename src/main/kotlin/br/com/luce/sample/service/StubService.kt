@@ -2,9 +2,9 @@ package br.com.luce.sample.service
 
 import br.com.luce.sample.extensions.writeValueAsBytesCoroutine
 import br.com.luce.sample.lucene.LuceneIndexer
-import br.com.luce.sample.request.Payload
-import br.com.luce.sample.request.RequestModel
-import br.com.luce.sample.request.ResponseModel
+import br.com.luce.sample.model.StubPayload
+import br.com.luce.sample.model.RequestModel
+import br.com.luce.sample.model.ResponseModel
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -31,23 +31,23 @@ class StorageFileService(
         return payload.responseModel
     }
 
-    private suspend fun writeFileCoroutine(directory: String, payload: Payload) = withContext(Dispatchers.IO) {
+    private suspend fun writeFileCoroutine(directory: String, stubPayload: StubPayload) = withContext(Dispatchers.IO) {
         val path = Path(directory.plus(UUID.randomUUID()).plus(".json"))
         Files.write(
             path,
-            objectMapper.writeValueAsBytesCoroutine(payload)
+            objectMapper.writeValueAsBytesCoroutine(stubPayload)
         )
-        luceneIndexer.index(payload, path.toString())
+        luceneIndexer.index(stubPayload, path.toString())
     }
 
     private fun createDirectoryIfNotExist(requestPath: String): String {
         val path = fileDirectory.plus(requestPath)
         val pathExists = Files.exists(Path(path))
-        if (!pathExists) Files.createDirectory(Path(path))
+        if (!pathExists) Files.createDirectories(Path(path))
         return path
     }
 
-    suspend fun requestToPayload(request: ServerWebExchange): Payload {
+    suspend fun requestToPayload(request: ServerWebExchange): StubPayload {
         val req = request.request
         val bodyIs = req.body.awaitFirstOrNull()?.asInputStream()
         val byteArray = withContext(Dispatchers.IO) {
@@ -60,10 +60,10 @@ class StorageFileService(
             queryParams = req.queryParams,
             method = req.method.name(),
         )
-        val res = objectMapper.writeValueAsString(mapOf("id" to UUID.randomUUID().toString()))
+        val res = objectMapper.writeValueAsString(mapOf("id" to UUID.randomUUID().toString().plus(request1.method)))
 
 
         val response = ResponseModel(body = objectMapper.readTree(res), HttpHeaders())
-        return Payload(request1, response)
+        return StubPayload(request1, response)
     }
 }
