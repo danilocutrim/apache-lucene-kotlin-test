@@ -1,6 +1,7 @@
-lucene:
-  index:
-    directory: /home/danilo/Workspace/apache-lucene-kotlin-test/lucene_index/
+stub:
+  directory:
+    lucene-index: /home/danilo/Workspace/apache-lucene-kotlin-test/lucene_index
+    work-dir: /home/danilo/Workspace/apache-lucene-kotlin-test/sample_files
+    request-files: /sample_request
+    response-files: /sample_response
 
-file:
-  directory: /home/danilo/Workspace/apache-lucene-kotlin-test/sample_files/

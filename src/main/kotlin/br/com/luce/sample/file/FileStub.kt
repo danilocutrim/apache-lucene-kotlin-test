@@ -2,8 +2,8 @@ package br.com.luce.sample.file
 
 import br.com.luce.sample.extensions.toPath
 import br.com.luce.sample.extensions.writeValueAsBytesCoroutine
+import br.com.luce.sample.model.RequestModel
 import br.com.luce.sample.model.ResponseModel
-import br.com.luce.sample.model.StubPayload
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,24 +12,43 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 
-class FileStub(private val objectMapper: ObjectMapper, private val rootDirectory: Path) {
+class FileStub(private val objectMapper: ObjectMapper, private val stubRootDir: Path) {
 
-    suspend fun writeFile(stubPayload: StubPayload): ResponseModel {
-        val directory = createStubRequestDirIfNotExists(stubPayload.requestModel.path.plus("/").toPath())
-        writeFileCoroutine(directory.toString(), stubPayload)
-        return stubPayload.responseModel
+//    suspend fun writeFile(stubPayload: RequestModel) {
+//        val directory = createStubRequestDirIfNotExists(stubPayload.path)
+//        writeFileCoroutine(directory.toString(), stubPayload)
+//    }
+
+    suspend fun writeFile(requestModel: RequestModel, filePath: String, stubId: String) {
+        val directory = createStubRequestDirIfNotExists(filePath)
+        writeFileCoroutine(directory.toString(), requestModel, stubId)
     }
 
-    private suspend fun writeFileCoroutine(directory: String, stubPayload: StubPayload) = withContext(Dispatchers.IO) {
-        val path = Path(directory.plus(UUID.randomUUID()).plus(".json"))
-        Files.write(
-            path,
-            objectMapper.writeValueAsBytesCoroutine(stubPayload)
-        )
+    suspend fun writeFile(responseModel: ResponseModel, filePath: String, stubId: String) {
+        val directory = createStubRequestDirIfNotExists(filePath)
+        writeFileCoroutine(directory.toString(), responseModel, stubId)
     }
 
-    private fun createStubRequestDirIfNotExists(stubRequestPath: Path): Path {
-        val path = rootDirectory.toString().plus(stubRequestPath.toString()).toPath()
+    private suspend fun writeFileCoroutine(directory: String, requestModel: RequestModel, stubId: String) =
+        withContext(Dispatchers.IO) {
+            val path = Path(directory.plus("/").plus(stubId).plus(".json"))
+            Files.write(
+                path,
+                objectMapper.writeValueAsBytesCoroutine(requestModel)
+            )
+        }
+
+    private suspend fun writeFileCoroutine(directory: String, responseModel: ResponseModel, stubId: String) =
+        withContext(Dispatchers.IO) {
+            val path = Path(directory.plus("/").plus(stubId).plus(".json"))
+            Files.write(
+                path,
+                objectMapper.writeValueAsBytesCoroutine(responseModel)
+            )
+        }
+
+    private fun createStubRequestDirIfNotExists(stubRequestPath: String): Path {
+        val path = stubRootDir.toString().plus(stubRequestPath).toPath()
         Files.createDirectories(path)
         return path
     }

@@ -1,4 +1,4 @@
 package br.com.luce.sample.constants
 
-class FileConstants {
-}
+const val PATH_SEPARATOR = "/"
+const val JSON_EXTENSION = ".json"
