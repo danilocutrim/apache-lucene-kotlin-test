@@ -3,6 +3,7 @@ package br.com.luce.sample.service
 import br.com.luce.sample.model.RequestModel
 import br.com.luce.sample.model.ResponseModel
 import br.com.luce.sample.model.StubPayload
+import br.com.luce.sample.repository.impl.StubResponseRepository
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
@@ -14,19 +15,20 @@ import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ServerWebExchange
-import java.io.File
 import java.util.*
 
 @Service
 class StubService(
     private val objectMapper: ObjectMapper,
-    private val searchService: SearchService
+    private val searchService: SearchService,
+    private val stubResponseRepository: StubResponseRepository
 ) {
     suspend fun getStubResponse(request: ServerWebExchange): ResponseEntity<JsonNode> {
-        val requestModel = objectMapper.writeValueAsString(requestToPayload(request).requestModel)
+        val req = requestToPayload(request).requestModel
+        val requestModel = objectMapper.writeValueAsString(req)
         val requestModelJson = JSONObject(requestModel)
-        val file = searchService.searchScoredDocs(1, requestModelJson)
-        return newResponseEntity(findResponseById(file))
+        val id = searchService.searchScoredDocs(1, requestModelJson)
+        return newResponseEntity(findResponseById(id,req.path))
     }
 
     private fun newResponseEntity(json: JsonNode): ResponseEntity<JsonNode> {
@@ -45,9 +47,8 @@ class StubService(
     }
 
 
-    private fun findResponseById(fileName: String): JsonNode {
-        val file = File(fileName.replace("/sample_request", "/sample_response"))
-        return objectMapper.readTree(file)
+    private suspend fun findResponseById(fileName: String, path: String): JsonNode {
+        return stubResponseRepository.findResponseByIdAndPath(id = fileName, path)?:throw Exception("")
     }
 
     suspend fun requestToPayload(request: ServerWebExchange): StubPayload {

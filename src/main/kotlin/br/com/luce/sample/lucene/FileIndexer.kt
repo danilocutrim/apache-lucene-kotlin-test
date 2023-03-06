@@ -1,5 +1,6 @@
 package br.com.luce.sample.lucene
 
+import br.com.luce.sample.constants.JSON_EXTENSION
 import br.com.luce.sample.file.FileUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -46,11 +47,12 @@ class FileIndexer {
 
 
     private suspend fun indexFile(writer: IndexWriter, file: File) = withContext(Dispatchers.IO) {
+        val id = file.name.removeSuffix(JSON_EXTENSION)
         val json = JSONObject(file.readText())
         val doc = DocumentFactory.createDocument(json)
-        val fileNameField = StringField("fileName", file.absolutePath, Field.Store.YES)
+        val fileNameField = StringField("id", id, Field.Store.YES)
         doc.add(fileNameField)
-        val term = Term("fileName", file.name)
+        val term = Term("id", id)
         writer.updateDocument(term, doc)
     }
 }

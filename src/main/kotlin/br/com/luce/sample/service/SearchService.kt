@@ -15,6 +15,6 @@ class SearchService(
 ) {
 
     suspend fun searchScoredDocs(numHits: Int, json: JSONObject): String {
-        return fileSearch.searchDocument(numHits, json, indexRootDir)?.get("fileName") ?: throw Exception("")
+        return fileSearch.searchDocument(numHits, json, indexRootDir)?.get("id") ?: throw Exception("")
     }
 }
